@@ -1,4 +1,6 @@
-# Enamel
+Library for mapping :erlsom output into Elixir structs
+
+<!-- # Enamel
 
 **TODO: Add description**
 
@@ -18,4 +20,4 @@ end
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/enamel](https://hexdocs.pm/enamel).
-
+ -->
