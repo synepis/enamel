@@ -1,6 +1,6 @@
 defmodule Enamel.ErlsomMapper do
-  
-  ## Public API 
+
+  ## Public API
 
   def map({_tag, attrs, items}, module) do
     {module_items, text_items} = Enum.split_with(items, &is_tuple/1)
@@ -10,10 +10,10 @@ defmodule Enamel.ErlsomMapper do
     |> Map.merge(map_items(module_items, module.items))
     |> Map.merge(map_text(text_items, module.text))
     |> module.refine.()
-    
+
     struct(module, struct_map)
   end
-  
+
   ## Internals
 
   # Attribute mapping
@@ -29,10 +29,10 @@ defmodule Enamel.ErlsomMapper do
 
   defp map_attributes(attrs, attrs_mapping) do
     attrs
-    |> Enum.filter(fn ({name, _value}) -> 
+    |> Enum.filter(fn ({name, _value}) ->
       Map.has_key?(attrs_mapping, name)
     end)
-    |> Enum.map(fn ({name, value}) -> 
+    |> Enum.map(fn ({name, value}) ->
       map_attribute({name, value}, attrs_mapping[name])
     end)
     |> Enum.into(%{})
@@ -41,7 +41,7 @@ defmodule Enamel.ErlsomMapper do
   # Item mapping
   defp item_defaults_map(item_mapping) do
     item_mapping
-    |> Enum.map(fn ({_tag, {key, module_mapping}}) -> 
+    |> Enum.map(fn ({_tag, {key, module_mapping}}) ->
       case is_list(module_mapping) do
         true -> {key, []}
         false -> {key, nil}
@@ -68,7 +68,7 @@ defmodule Enamel.ErlsomMapper do
     default_map = item_defaults_map(item_mapping)
     item_map = items
     |> Enum.group_by(fn {tag, _, _} -> tag end)
-    |> Enum.filter(fn ({tag, _}) -> 
+    |> Enum.filter(fn ({tag, _}) ->
       Map.has_key?(item_mapping, tag)
     end)
     |> Enum.reduce(%{}, fn ({tag, item_group}, acc) ->
@@ -80,7 +80,7 @@ defmodule Enamel.ErlsomMapper do
 
   # Text mapping
   defp map_text(_items, nil), do: %{}
-  
+
   defp map_text(items, key) when is_atom(key) do
     map_text(items, {key, fn x -> x end})
   end
