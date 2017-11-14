@@ -1,4 +1,4 @@
-defmodule EnamelComplexTest do
+defmodule Enamel.ComplexMappingTest do
   use ExUnit.Case
 
   @schedule_xml """
@@ -47,7 +47,7 @@ defmodule EnamelComplexTest do
   """
 
   defmodule Model do
-    
+
     ##  Parsing helpers
 
     def parse_bool_str("true"), do: true
@@ -61,8 +61,8 @@ defmodule EnamelComplexTest do
 
       def attributes(), do: %{
         'date'        => {:date, &Date.from_iso8601!/1 },
-        'trainId'     => :train_id } 
-      def items(), do: %{ 
+        'trainId'     => :train_id }
+      def items(), do: %{
         'Origin'      => { :origin,      Model.Stop },
         'Stop'        => { :stops,       [Model.Stop] },
         'Destination' => { :destination, Model.Stop }}
@@ -71,7 +71,7 @@ defmodule EnamelComplexTest do
     defmodule Stop do
       use Enamel.MappingInfo
       defstruct [ {:public, true }, :location, :schedule, :platform ]
-      def attributes(), do: %{ 
+      def attributes(), do: %{
         'isPublic'      => { :public,         &Model.parse_bool_str/1 }}
       def items(), do: %{
         'Location'      => { :location,       Model.Location },
@@ -96,7 +96,7 @@ defmodule EnamelComplexTest do
       }
       def refine() do
         fn schedule_times ->
-          arr = schedule_times._arrival_time 
+          arr = schedule_times._arrival_time
           dep = schedule_times._departure_time
 
           schedule_times
@@ -121,7 +121,7 @@ defmodule EnamelComplexTest do
 
   test "maps sucessfully a complex document" do
     {:ok, xml_mapping, _} = :erlsom.simple_form(@schedule_xml)
-    
+
     schedule = Enamel.ErlsomMapper.map(xml_mapping, __MODULE__.Model.Schedule)
 
     assert schedule.date == ~D[2017-11-01]

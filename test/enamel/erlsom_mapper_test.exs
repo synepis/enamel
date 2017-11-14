@@ -1,8 +1,9 @@
-defmodule ErlsomMapperTest do
+defmodule Enamel.ErlsomMapperTest do
   use ExUnit.Case
   doctest Enamel.ErlsomMapper
 
   alias Enamel.ErlsomMapper, as: ErlsomMapper
+  alias Enamel.ErlsomMapperTest
 
   # Expected type is returned after mapping
 
@@ -13,7 +14,7 @@ defmodule ErlsomMapperTest do
     end
 
     mapping = parse_with_erslom('<item></item>')
-    
+
     item = ErlsomMapper.map(mapping, CustomItem)
 
     # Have to do assertions like this because the module and test is in the same file
@@ -30,11 +31,11 @@ defmodule ErlsomMapperTest do
       def attributes(), do: %{
         'attr1' => :attr1,
         'attr2' => :attr2
-      }  
+      }
     end
 
     mapping = parse_with_erslom('<item attr1="value1" attr2="value2" />')
-    
+
     item = ErlsomMapper.map(mapping, ItemWithTwoAttributes)
 
     assert item.attr1 == "value1"
@@ -60,11 +61,11 @@ defmodule ErlsomMapperTest do
       defstruct [:number]
       def attributes(), do: %{
         'number' => { :number, &String.to_integer/1 }
-      }  
+      }
     end
 
     mapping = parse_with_erslom('<item number="123"/>')
-    
+
     item = ErlsomMapper.map(mapping, ItemWithAttributeConversionFunctions)
 
     assert item.number == 123
@@ -76,11 +77,11 @@ defmodule ErlsomMapperTest do
       defstruct [number: -1 ]
       def attributes(), do: %{
         'number' => { :number, &String.to_integer/1 }
-      }  
+      }
     end
 
     mapping = parse_with_erslom('<item />')
-    
+
     item = ErlsomMapper.map(mapping, ItemWithDefaultAttributeValue)
 
     assert item.number == -1
@@ -96,14 +97,14 @@ defmodule ErlsomMapperTest do
       def items(), do: %{
         'subitem1' => { :subitem1, __MODULE__.SubItem1 },
         'subitem2' => { :subitem2, __MODULE__.SubItem2 }
-      }  
+      }
       defmodule SubItem1, do: (use Enamel.MappingInfo; defstruct [])
       defmodule SubItem2, do: (use Enamel.MappingInfo; defstruct [])
     end
 
     mapping = parse_with_erslom(
       '<item> <subitem1/> <subitem2/> </item>')
-    
+
     item = ErlsomMapper.map(mapping, ItemWithSubItems)
 
     assert item.subitem1 == struct(ItemWithSubItems.SubItem1)
@@ -116,18 +117,18 @@ defmodule ErlsomMapperTest do
       defstruct [:single_item]
       def items(), do: %{
         'single_item' => { :single_item, __MODULE__.SingleItem },
-      }  
+      }
       defmodule SingleItem, do: (use Enamel.MappingInfo; defstruct [])
     end
 
     mapping = parse_with_erslom(
       '<item> <single_item /> <single_item /> </item>')
-      
+
     assert_raise RuntimeError, fn ->
       ErlsomMapper.map(mapping, ItemWithNonGroupItem)
     end
   end
-  
+
   test "group items are mapped into arrays" do
     defmodule ItemWithGroupSubItems do
       use Enamel.MappingInfo
@@ -135,14 +136,14 @@ defmodule ErlsomMapperTest do
       def items(), do: %{
         'subitem1' => { :subitem1, [__MODULE__.SubItem1] },
         'subitem2' => { :subitem2, [__MODULE__.SubItem2] }
-      }  
+      }
       defmodule SubItem1, do: (use Enamel.MappingInfo; defstruct [])
       defmodule SubItem2, do: (use Enamel.MappingInfo; defstruct [])
     end
 
     mapping = parse_with_erslom(
       '<item> <subitem1/> <subitem2/> <subitem2/> <subitem1/> <subitem1/> </item>')
-    
+
     item = ErlsomMapper.map(mapping, ItemWithGroupSubItems)
 
     subitem1 = struct(ItemWithGroupSubItems.SubItem1)
@@ -158,7 +159,7 @@ defmodule ErlsomMapperTest do
       def items(), do: %{
         'subitem1' => { :subitem1, __MODULE__.SubItem1 },
         'subitem2' => { :subitem2, [__MODULE__.SubItem2] }
-      }  
+      }
       defmodule SubItem1, do: (use Enamel.MappingInfo; defstruct [])
       defmodule SubItem2, do: (use Enamel.MappingInfo; defstruct [])
     end
@@ -170,10 +171,10 @@ defmodule ErlsomMapperTest do
     assert item.subitem1 == nil
     assert item.subitem2 == []
   end
-  
-  
+
+
   # Text mapping
-  
+
   test "text mapping returns text items as a list of string by default" do
     defmodule ItemWithMultipleTextItems do
       use Enamel.MappingInfo
@@ -260,8 +261,8 @@ defmodule ErlsomMapperTest do
         'lastName' => { :_last_name, __MODULE__.Name }
       }
       def refine() do
-        fn (person) -> 
-          person 
+        fn (person) ->
+          person
           |> Map.put(:first_name, person._first_name.value)
           |> Map.put(:last_name, person._last_name.value)
         end
@@ -276,7 +277,7 @@ defmodule ErlsomMapperTest do
 
     mapping = parse_with_erslom(
       '<person> <firstName value="John"/> <lastName value="Smith"/> </person>')
-    
+
     person = ErlsomMapper.map(mapping, Person)
 
     assert person.first_name == "John"

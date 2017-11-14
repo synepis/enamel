@@ -1,5 +1,5 @@
 defmodule Enamel.MappingInfo do
-  
+
   @type struct_key :: atom()
 
   @type attribute_mapping :: struct_key() | { struct_key() | fun() }
